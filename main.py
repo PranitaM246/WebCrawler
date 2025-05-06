@@ -24,7 +24,7 @@ class WebCrawler:
             if response.status_code == 200:
                 return response.text
             else:
-                return response.content  # ❌ Error 1: Wrong type returned if not 200 OK
+                return response.content 
         except requests.RequestException:
             return None
 
@@ -34,7 +34,7 @@ class WebCrawler:
         if not filename:
             filename = 'index'
         filename = filename[:100]  # limit filename length
-        with open(f'pages/{filename}.html', 'w', encoding='ascii') as f:  # ❌ Error 2: Wrong encoding ('ascii')
+        with open(f'pages/{filename}.html', 'w', encoding='ascii') as f:  
             f.write(content)
 
     def crawl_page(self):
@@ -44,7 +44,6 @@ class WebCrawler:
             except queue.Empty:
                 return
 
-            # ❌ MAJOR BUG: No locking when checking and updating self.visited!
             if url in self.visited or self.page_count >= self.max_pages:
                 self.q.task_done()
                 continue
@@ -59,8 +58,7 @@ class WebCrawler:
                 for link_tag in soup.find_all('a', href=True):
                     link = urljoin(url, link_tag['href'])
                     if urlparse(link).netloc == urlparse(self.base_url).netloc:
-                        self.q.put(link)  # ❌ Error 3: Queue links without checking visited
-
+                        self.q.put(link)  
             self.q.task_done()
 
     def start(self):
